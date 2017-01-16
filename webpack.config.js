@@ -8,6 +8,8 @@ const appPaths = [
 module.exports = {
     entry: [
         './app/index.js',
+        'webpack-dev-server/client?http://localhost:3000',
+        'webpack/hot/dev-server',
     ],
     output: {
         publicPath: '/dist/',
@@ -22,5 +24,8 @@ module.exports = {
                 include: appPaths,
             },
         ],
-    }
+    },
+    plugins: [
+        new webpack.HotModuleReplacementPlugin(),
+    ]
 };
