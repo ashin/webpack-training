@@ -1,0 +1,15 @@
+{
+  "name": "webpack-tute",
+  "version": "1.0.0",
+  "description": "# Step 1 Let's add in Webpack",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack ./app/index.js ./dist/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "1.14.0"
+  }
+}
