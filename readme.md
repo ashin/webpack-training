@@ -67,7 +67,8 @@ Now that we have these installed into our `node_modules` we know need to somehow
 
 Now we have that, let's add it to our webpack config
 
-``` # webpack.config.js
+```
+# webpack.config.js
 
 const appPaths = [
   path.resolve(__dirname, 'app'),
@@ -91,7 +92,8 @@ Here you can see we are adding babel-loader into the loaders. The `test` is a re
 
 Now we need to set up our babel config file, which will automatically be picked up by the `babel-loader`.
 
-``` # /.babelrc
+```
+# /.babelrc
 {
     "presets": [
         "es2015",
@@ -103,7 +105,8 @@ Now we need to set up our babel config file, which will automatically be picked 
 
 Alright, let's see if it works: Let's change our `app/index.js` to some cool `jsx` and some `es2015`.
 
-``` # /app/index.js
+```
+# /app/index.js
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -128,7 +131,8 @@ First things first, let's install some packages that we will need:
 
 create a node server:
 
-``` # /devServer.js
+```
+# /devServer.js
 
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
@@ -152,7 +156,8 @@ This basically creates a new `WebpackDevServer` instance, grabs our webpack conf
 
 If we want to add more code into our app through webpack, we can just add more entries to our config. While we are at it, we need to add in the `HotModuleReplacementPlugin` to our config:
 
-``` # webpack.config.js
+```
+# webpack.config.js
 ...
 module.exports = {
     entry: [
@@ -169,7 +174,8 @@ module.exports = {
 
 Now that we have that client-side hot-reload code in our client app, we should init it within our code. To do that we just need to call a simple method at the bottom of our `/app/index.js`
 
-``` # /app/index.js
+```
+# /app/index.js
 ...
 if (module.hot) {
 	module.hot.accept();
@@ -178,7 +184,8 @@ if (module.hot) {
 
 So now, we should have a new devServer watching over our webpack build and making the changes to the app on our browser on the fly. So let's add this in as a new script within `package.json` and give it a whirl:
 
-``` # /package.json
+```
+# /package.json
 ...
 scripts: [
     watch: 'node devServer.js'
@@ -192,7 +199,8 @@ Now just run `$ npm run watch` and our new devServer should fire up a browser wi
 
 You may have noticed that we have polluted our nice clean application with lots of boilerplate to get Hot Module Replacement working, which is fine for development, but we don't want it to be bundled when we deploy. So let's add a environment variable to our builds where we can conditionally load in what we need in both `development` and `production` situations. Firstly, let's add the variable to our scripts.
 
-``` # /package.json
+```
+# /package.json
 ...
 "scripts": {
   "build": "NODE_ENV=production webpack",
@@ -203,7 +211,8 @@ You may have noticed that we have polluted our nice clean application with lots 
 
 Now we can access this environment variable using nodes `process.env` object within our build.
 
-``` # /webpack.config.js
+```
+# /webpack.config.js
 ...
 const isProduction = process.env.NODE_ENV === 'production';
 
