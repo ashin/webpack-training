@@ -24,3 +24,29 @@ Now let's add a script to the `package.json` that runs `webpack` with the argume
 ```
 
 If that ran successfully, we should now have a new file appear in `dist/app.js` with some boiler code, and our console log. Nice!
+
+#Step 2
+Now let's make use of webpack's module loading by adding in some npm packages that we know we'll need. How about some react?
+
+`$ npm i --save react react-dom`
+
+Now with the power of webpack's module loader we can use `require` to load in our npm modules.
+
+```
+# app/index.js
+
+var React = require('react');
+var ReactDOM = require('react-dom');
+
+function App () {
+    return React.createElement('div', null, 'Hello world');
+}
+var appComponent = React.createElement(Hello, {}, null);
+var rootElement = document.getElementById('app');
+
+ReactDOM.render(appComponent, rootElement);
+```
+
+Now if we run `npm run start` again we can see that it all work's nicely. Yay! Our react app is on it's way!
+
+Although, our code looks a little ugly doesn't it? Wouldn't it be nice if we had ES6 features so we could take use of `export` and `import` instead of `require` and `module.exports`? But our webpack currently doesn't know how to deal with those features. So we will need to add in some middleware that can process these new features. Enter `webpack loaders`.
