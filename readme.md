@@ -136,7 +136,6 @@ create a node server:
 
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
-const opn = require('opn');
 
 const config = require('./webpack.config');
 const port = 3000;
