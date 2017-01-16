@@ -4,7 +4,7 @@
   "description": "# Step 1 Let's add in Webpack",
   "main": "index.js",
   "scripts": {
-    "start": "webpack ./app/index.js ./dist/app.js"
+    "start": "webpack"
   },
   "keywords": [],
   "author": "",
