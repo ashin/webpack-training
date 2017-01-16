@@ -186,3 +186,51 @@ scripts: [
 ```
 
 Now just run `$ npm run watch` and our new devServer should fire up a browser window of our app!
+
+
+# Step 5
+
+You may have noticed that we have polluted our nice clean application with lots of boilerplate to get Hot Module Replacement working, which is fine for development, but we don't want it to be bundled when we deploy. So let's add a environment variable to our builds where we can conditionally load in what we need in both `development` and `production` situations. Firstly, let's add the variable to our scripts.
+
+``` # /package.json
+...
+"scripts": {
+  "build": "NODE_ENV=production webpack",
+  "watch": "NODE_ENV=development node devServer.js"
+},
+...
+```
+
+Now we can access this environment variable using nodes `process.env` object within our build.
+
+``` # /webpack.config.js
+...
+const isProduction = process.env.NODE_ENV === 'production';
+
+const entry = isProduction
+    ? [
+        './app/index.js',
+    ]
+    : [
+        './app/index.js',
+        'webpack-dev-server/client?http://localhost:3000',
+        'webpack/hot/dev-server',
+    ];
+
+const plugins = isProduction
+    ? [
+        new webpack.optimize.UglifyJsPlugin()
+    ]
+    : [
+        new webpack.HotModuleReplacementPlugin(),
+    ];
+...
+module.exports = {
+    entry: entry,
+    ...
+    plugins: plugins,
+    ...
+```
+As you can see this can get very messy after a while with a lot of if/else or tuneries. Because of this some people lean towards using entirely seperate configs for server and client rendering. Or others have a base config, that they then import into both their client and server configs and edit that base with pure JS, or enlist a npm package called [webpack-merge](https://www.npmjs.com/package/webpack-merge) that does a deep merge of both objects, very simularly to `Object.assign()`
+
+You may have noticed that we snuck in another plugin to our config called `webpack.optimize.UglifyJsPlugin()`. This as the name suggests will uglify our code anytime we build with the `production` flag.

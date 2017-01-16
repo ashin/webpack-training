@@ -4,8 +4,8 @@
   "description": "# Step 1 Let's add in Webpack",
   "main": "index.js",
   "scripts": {
-    "build": "webpack",
-    "watch": "node devServer.js"
+    "build": "NODE_ENV=production webpack",
+    "watch": "NODE_ENV=development node devServer.js"
   },
   "keywords": [],
   "author": "",
