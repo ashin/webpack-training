@@ -1,7 +1,7 @@
-## Let's do webpack!
+# Let's do webpack!
 
 
-# Step 1
+## Step 1
 Let's make our `package.json` file
 
 `$ npm init -y`
@@ -29,7 +29,7 @@ If that ran successfully, we should now have a new file appear in `dist/app.js` 
 If you open up the `./dist/index.html` file you should see the log appearing... magic!
 
 
-#Step 2
+## Step 2
 Now let's make use of webpack's module loading by adding in some npm packages that we know we'll need. How about some react?
 
 `$ npm i --save react react-dom`
@@ -56,7 +56,7 @@ Now if we run `npm run start` again we can see that it all work's nicely. Yay! O
 Although, our code looks a little ugly doesn't it? Wouldn't it be nice if we had ES6 features so we could take use of `export` and `import` instead of `require` and `module.exports`? But our webpack currently doesn't know how to deal with those features. So we will need to add in some middleware that can process these new features. Enter `webpack loaders`.
 
 
-# Step 3
+## Step 3
 `Babel` is a npm module that compiles JS with lots of different presets, to add features to our JS runtime that it doesn't otherwise have out of the box. First let's install it, and the presets we want to use:
 
 `$ npm i --save-dev babel-core babel-preset-es2015 babel-preset-react babel-preset-stage-0`
@@ -120,7 +120,7 @@ ReactDOM.render(<App />, rootElement);
 How much nicer does that look? HEAPS!
 
 
-# Step 4
+## Step 4
 Now let's sort out a proper development process. Currently we are having to view a local `index.html` file, and we have to refresh all the time. Wouldn't it be cool if we could get webpack to watch for our file, recompile our code and also refresh our browser for us? That would be nice, but how about instead of just reloading the entire page, it could just refresh the parts of the code that we changed without needing to reload the page entirely so that we can keep the state of our app?
 
 Well, with the power of `webpack-dev-server` and `hot-module-replacement` all of that is possible. First we will need to create a small web server with `webpack-dev-server` that will load in our webpack config and render our application for us. As well as that we will need to inject in some `hot-module-replacement` into our application so that it will listen to the server for any changes, and hot-replace the needed code out.
@@ -194,7 +194,7 @@ scripts: [
 Now just run `$ npm run watch` and our new devServer should fire up a browser window of our app!
 
 
-# Step 5
+## Step 5
 
 You may have noticed that we have polluted our nice clean application with lots of boilerplate to get Hot Module Replacement working, which is fine for development, but we don't want it to be bundled when we deploy. So let's add a environment variable to our builds where we can conditionally load in what we need in both `development` and `production` situations. Firstly, let's add the variable to our scripts.
 
