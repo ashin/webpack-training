@@ -65,7 +65,7 @@ Now that we have these installed into our `node_modules` we know need to somehow
 
 `$ npm i --save-dev babel-loader`
 
-Now we have that, let's add it to our `webpack.config.js`
+Now we have that, let's add it to our webpack config
 
 ``` # webpack.config.js
 
