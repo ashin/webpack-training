@@ -50,3 +50,63 @@ ReactDOM.render(appComponent, rootElement);
 Now if we run `npm run start` again we can see that it all work's nicely. Yay! Our react app is on it's way!
 
 Although, our code looks a little ugly doesn't it? Wouldn't it be nice if we had ES6 features so we could take use of `export` and `import` instead of `require` and `module.exports`? But our webpack currently doesn't know how to deal with those features. So we will need to add in some middleware that can process these new features. Enter `webpack loaders`.
+
+# Step 3
+`Babel` is a npm module that compiles JS with lots of different presets, to add features to our JS runtime that it doesn't otherwise have out of the box. First let's install it, and the presets we want to use:
+
+`$ npm i --save-dev babel-core babel-preset-es2015 babel-preset-react babel-preset-stage-0`
+
+Now that we have these installed into our `node_modules` we know need to somehow get them into our webpack config... For that there is loaders, for `babel` we use a module called `babel-loader`
+
+`$ npm i --save-dev babel-loader`
+
+Now we have that, let's add it to our `webpack.config.js`
+
+``` # webpack.config.js
+
+const appPaths = [
+  path.resolve(__dirname, 'app'),
+];
+
+module.exports = {
+...
+    module: {
+        loaders: [
+            {
+                test: /\.js$/,
+                loader: 'babel-loader',
+                include: appPaths,
+            },
+        ],
+    }
+...
+```
+
+Here you can see we are adding babel-loader into the loaders. The `test` is a regex expression that will run through any filename passed through webpack, and if it's truthy will be passed into the `babel-loader`. The other property `include` will make sure that the file appears in these pathnames, we do this because we don't want files in other areas, like `node_modules` to be babelifed again.
+
+Now we need to set up our babel config file, which will automatically be picked up by the `babel-loader`.
+
+``` # /.babelrc
+{
+    "presets": [
+        "es2015",
+        "react",
+        "stage-0"
+    ]
+}
+```
+
+Alright, let's see if it works: Let's change our `app/index.js` to some cool `jsx` and some `es2015`.
+
+``` # /app/index.js
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+const App = () => (<div>Hello world</div>);
+var rootElement = document.getElementById('app');
+
+ReactDOM.render(<App />, rootElement);
+```
+
+How much nicer does that look? HEAPS!

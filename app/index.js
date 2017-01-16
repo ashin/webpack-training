@@ -1,10 +1,7 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-function App () {
-    return React.createElement('div', null, 'Hello world');
-}
-var appComponent = React.createElement(Hello, {}, null);
+const App = () => (<div>Hello world</div>);
 var rootElement = document.getElementById('app');
 
-ReactDOM.render(appComponent, rootElement);
+ReactDOM.render(<App />, rootElement);
