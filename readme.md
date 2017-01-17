@@ -345,3 +345,17 @@ const App = () => (
     <div className={styles.container}>
 ...
 ```
+
+Now let's change up our `css-loader` to generate all our `className`s.
+
+```
+# webpack.config.js
+...
+{
+    test: /\.css$/,
+    loaders: ['style-loader', 'css-loader?modules&localIdentName=[name]__[local]___[emoji]'],
+}
+...
+```
+
+Now when we run the app, the `.container` class is rendered like this: `styles__container___🌋`. Mmmm.... nice.
