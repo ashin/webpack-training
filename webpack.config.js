@@ -43,11 +43,6 @@ module.exports = {
                 loader: 'url-loader?limit=10000&name=images/[hash:8].[ext]',
                 include: appPaths,
             },
-            {
-                test: /\.css$/,
-                loaders: ['style-loader', 'css-loader?modules&localIdentName=[name]__[local]___[emoji]'],
-                include: appPaths,
-            }
         ],
     },
     plugins: plugins
