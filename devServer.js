@@ -13,7 +13,5 @@ new WebpackDevServer(webpack(config), {
 }).listen(port, 'localhost', error => {
     if (error) {
         console.log(error);
-    } else {
-        opn(`http://localhost:${port}`);
     }
 });

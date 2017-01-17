@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 
 const appPaths = [
-  path.resolve(__dirname, 'app'),
+  path.resolve(__dirname, 'app')
 ];
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -25,6 +25,13 @@ const plugins = isProduction
         new webpack.HotModuleReplacementPlugin(),
     ];
 
+const themes = {
+    default: 'themes/default',
+    crazy: 'themes/crazy',
+};
+const selectedTheme = themes[process.env.THEME] || themes.default;
+
+
 module.exports = {
     entry: entry,
     output: {
@@ -45,11 +52,12 @@ module.exports = {
                 include: appPaths,
             },
             {
-                test: /\.css$/,
+                test: /\.(css|less)$/,
                 loaders: [
                     'style-loader',
                     'css-loader?modules&localIdentName=[name]__[local]___[emoji]',
-                    'postcss-loader'
+                    'postcss-loader',
+                    'less-loader',
                 ],
                 include: appPaths,
             }
@@ -59,4 +67,7 @@ module.exports = {
     postcss: [
         autoprefixer
     ],
+    resolve: {
+        modulesDirectories: ['node_modules', selectedTheme]
+    },
 };

@@ -1,6 +1,9 @@
+@import (reference) "~colours";
+
 .container {
-    background: pink;
+    background: @blue;
     margin: 20px auto;
     max-width: 400px;
     transform: rotateX(10deg);
+    color: @red;
 }
