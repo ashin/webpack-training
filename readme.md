@@ -16,7 +16,8 @@ We install it with the `--save-dev` flag as we will add it as a `dev-dependency`
 
 Now let's add a script to the `package.json` that runs `webpack` with the arguments entry point, and then an output.
 
-```#package.json
+```
+#package.json
 ...
 "scripts": {
     "start": "webpack ./app/index.js ./dist/app.js"
@@ -345,3 +346,74 @@ const App = () => (
     <div className={styles.container}>
 ...
 ```
+
+Now let's change up our `css-loader` to generate all our `className`s.
+
+```
+# webpack.config.js
+...
+{
+    test: /\.css$/,
+    loaders: ['style-loader', 'css-loader?modules&localIdentName=[name]__[local]___[emoji]'],
+}
+...
+```
+
+Now when we run the app, the `.container` class is rendered like this: `styles__container___🌋`. Mmmm.... nice.
+
+We can continue to chain loaders, that will do more things to the files we choose to pass in. For css files, for instance, we can add in a loader called `post-css`. It contains lots of css pre-processesors that can help us out. One of the most popular css pre-processes to use is called `autoprefixer`, which will add in prefixes to all of our non-standard css properties. So we can just use `transform` in our css, and it will add in a `-ms-transform` and `-webkit-transform` in build time. That will save us oodles of time!
+
+`$ npm i --save-dev postcss-loader auto-prefixer`
+
+
+Now let's add the `postcss-loader` into the css loaders, and we need to setup the postcss options within the base config object.
+
+```
+# webpack.config.js
+module.exports = {
+    ...
+    module: {
+        loaders: [
+            ...
+            {
+                test: /\.css$/,
+                loaders: [
+                    'style-loader',
+                    'css-loader?modules&localIdentName=[name]__[local]___[emoji]',
+                    'postcss-loader'
+                ],
+                ...
+            }
+        ],
+    },
+    ...
+    postcss: [ autoprefixer ],
+    ...
+};
+ ```
+
+ Now if we wanted to add a pre-processor like `less`, `sass` or `stylus`, we would just need to install the npm package, and the corrosponding loader, and just append the loader into our config. So if we wanted to use `stylus`:
+
+ `$ npm i --save-dev stylus stylus-loader`
+
+ Followed by:
+
+```
+# webpack.config.js
+module.exports = {
+    ...
+    module: {
+        loaders: [
+            ...
+            {
+                test: /\.css$/,
+                loaders: [
+                    'style-loader',
+                    'css-loader?modules&localIdentName=[name]__[local]___[emoji]',
+                    'postcss-loader',
+                    'stylus-loader'
+                ],
+                ...
+```
+
+And now we have `stylus` up and running. Woohoo!

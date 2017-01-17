@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
 
 const appPaths = [
   path.resolve(__dirname, 'app'),
@@ -45,10 +46,17 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loaders: ['style-loader', 'css-loader?modules&localIdentName=[name]__[local]___[emoji]'],
+                loaders: [
+                    'style-loader',
+                    'css-loader?modules&localIdentName=[name]__[local]___[emoji]',
+                    'postcss-loader'
+                ],
                 include: appPaths,
             }
         ],
     },
-    plugins: plugins
+    plugins: plugins,
+    postcss: [
+        autoprefixer
+    ],
 };
