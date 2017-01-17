@@ -1,7 +1,7 @@
-## Let's do webpack!
+# Let's do webpack!
 
 
-# Step 1
+## Step 1
 Let's make our `package.json` file
 
 `$ npm init -y`
@@ -29,7 +29,7 @@ If that ran successfully, we should now have a new file appear in `dist/app.js` 
 If you open up the `./dist/index.html` file you should see the log appearing... magic!
 
 
-#Step 2
+## Step 2
 Now let's make use of webpack's module loading by adding in some npm packages that we know we'll need. How about some react?
 
 `$ npm i --save react react-dom`
@@ -56,7 +56,7 @@ Now if we run `npm run start` again we can see that it all work's nicely. Yay! O
 Although, our code looks a little ugly doesn't it? Wouldn't it be nice if we had ES6 features so we could take use of `export` and `import` instead of `require` and `module.exports`? But our webpack currently doesn't know how to deal with those features. So we will need to add in some middleware that can process these new features. Enter `webpack loaders`.
 
 
-# Step 3
+## Step 3
 `Babel` is a npm module that compiles JS with lots of different presets, to add features to our JS runtime that it doesn't otherwise have out of the box. First let's install it, and the presets we want to use:
 
 `$ npm i --save-dev babel-core babel-preset-es2015 babel-preset-react babel-preset-stage-0`
@@ -67,7 +67,8 @@ Now that we have these installed into our `node_modules` we know need to somehow
 
 Now we have that, let's add it to our `webpack.config.js`
 
-``` # webpack.config.js
+```
+# webpack.config.js
 
 const appPaths = [
   path.resolve(__dirname, 'app'),
@@ -91,7 +92,8 @@ Here you can see we are adding babel-loader into the loaders. The `test` is a re
 
 Now we need to set up our babel config file, which will automatically be picked up by the `babel-loader`.
 
-``` # /.babelrc
+```
+# /.babelrc
 {
     "presets": [
         "es2015",
@@ -103,7 +105,8 @@ Now we need to set up our babel config file, which will automatically be picked 
 
 Alright, let's see if it works: Let's change our `app/index.js` to some cool `jsx` and some `es2015`.
 
-``` # /app/index.js
+```
+# /app/index.js
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -117,7 +120,7 @@ ReactDOM.render(<App />, rootElement);
 How much nicer does that look? HEAPS!
 
 
-# Step 4
+## Step 4
 Now let's sort out a proper development process. Currently we are having to view a local `index.html` file, and we have to refresh all the time. Wouldn't it be cool if we could get webpack to watch for our file, recompile our code and also refresh our browser for us? That would be nice, but how about instead of just reloading the entire page, it could just refresh the parts of the code that we changed without needing to reload the page entirely so that we can keep the state of our app?
 
 Well, with the power of `webpack-dev-server` and `hot-module-replacement` all of that is possible. First we will need to create a small web server with `webpack-dev-server` that will load in our webpack config and render our application for us. As well as that we will need to inject in some `hot-module-replacement` into our application so that it will listen to the server for any changes, and hot-replace the needed code out.
@@ -128,7 +131,8 @@ First things first, let's install some packages that we will need:
 
 create a node server:
 
-``` # /devServer.js
+```
+# /devServer.js
 
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
@@ -152,7 +156,8 @@ This basically creates a new `WebpackDevServer` instance, grabs our webpack conf
 
 If we want to add more code into our app through webpack, we can just add more entries to our config. While we are at it, we need to add in the `HotModuleReplacementPlugin` to our config:
 
-``` # webpack.config.js
+```
+# webpack.config.js
 ...
 module.exports = {
     entry: [
@@ -169,7 +174,8 @@ module.exports = {
 
 Now that we have that client-side hot-reload code in our client app, we should init it within our code. To do that we just need to call a simple method at the bottom of our `/app/index.js`
 
-``` # /app/index.js
+```
+# /app/index.js
 ...
 if (module.hot) {
 	module.hot.accept();
@@ -178,7 +184,8 @@ if (module.hot) {
 
 So now, we should have a new devServer watching over our webpack build and making the changes to the app on our browser on the fly. So let's add this in as a new script within `package.json` and give it a whirl:
 
-``` # /package.json
+```
+# /package.json
 ...
 scripts: [
     watch: 'node devServer.js'
@@ -188,11 +195,12 @@ scripts: [
 Now just run `$ npm run watch` and our new devServer should fire up a browser window of our app!
 
 
-# Step 5
+## Step 5
 
 You may have noticed that we have polluted our nice clean application with lots of boilerplate to get Hot Module Replacement working, which is fine for development, but we don't want it to be bundled when we deploy. So let's add a environment variable to our builds where we can conditionally load in what we need in both `development` and `production` situations. Firstly, let's add the variable to our scripts.
 
-``` # /package.json
+```
+# /package.json
 ...
 "scripts": {
   "build": "NODE_ENV=production webpack",
@@ -203,7 +211,8 @@ You may have noticed that we have polluted our nice clean application with lots 
 
 Now we can access this environment variable using nodes `process.env` object within our build.
 
-``` # /webpack.config.js
+```
+# /webpack.config.js
 ...
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -234,3 +243,105 @@ module.exports = {
 As you can see this can get very messy after a while with a lot of if/else or tuneries. Because of this some people lean towards using entirely seperate configs for server and client rendering. Or others have a base config, that they then import into both their client and server configs and edit that base with pure JS, or enlist a npm package called [webpack-merge](https://www.npmjs.com/package/webpack-merge) that does a deep merge of both objects, very simularly to `Object.assign()`
 
 You may have noticed that we snuck in another plugin to our config called `webpack.optimize.UglifyJsPlugin()`. This as the name suggests will uglify our code anytime we build with the `production` flag.
+
+
+## Step 6
+Now that we've got the basics covered, let's add in some more loaders, so that we can handle more of our assets like images, and css.
+
+Firstly, we'll get an image, and throw it into our `/app` folder. From there we can import it into our JS, so that webpack knows about it.
+
+```
+# /app/index.js
+...
+import dogImage from './dog.jpg';
+
+const App = () => (
+    <div>
+        <p>Hello world!</p>
+        <img src={dogImage} alt="It's a cute dog!" />
+    </div>
+);
+...
+```
+
+If we run `$ npm run watch` we will see that our app has an error, that if can't find `dog.jpg`, that's because webpack doesn't know how to process that file, so let's add in a loader for that now.
+
+First, let's install the appropriate loader, we will use `url-loader`. This moves all imported files into the output directory.
+
+`$ npm i --save-dev url-loader`
+
+Then let's setup our webpack config:
+
+```
+# webpack.config.js
+
+module.exports = {
+    ...
+    module: {
+        loaders: [
+            ...
+            {
+                test: /\.(gif|jpg|jpeg|png)$/,
+                loader: 'url-loader?limit=10000&name=images/[hash:8].[ext]',
+                include: appPaths,
+            },
+    ...
+```
+You can see we're now looking for any files finishing in `gif`, `jpg`, `jpeg`, or `png`. Also when we are loading in the `url-loader` we are also setting some options. The `limit` sets how large an image has to be before it's saved as a seperate file. So if it's under the Byte limit then it will just inline the image as a data-url, which is handy for small images as the browser won't take a round trip to the server for the file.
+
+## Step 7
+
+Now let's add in some css!
+
+```
+# /app/styles.css
+.container {
+    background: pink;
+    margin: 20px auto;
+    max-width: 400px;
+}
+```
+
+Next, import it into our `index.js` and add the `container` class into our app.
+
+```
+# /app/index.js
+...
+import styles from './styles.css';
+...
+const App = () => (
+    <div className={"container"}>
+...
+```
+
+If we run the app, we will be at the same issue with webpack not being able to process the css file, so let's install the loaders well need and set up the config file.
+`$ npm i --save-dev css-loader style-loader`
+
+Now our config:
+```
+# webpack.config.js
+...
+    module: {
+        loaders: [
+            ...
+            {
+                test: /\.css$/,
+                loaders: ['style-loader', 'css-loader'],
+                include: appPaths,
+            }
+        ]
+    },
+    ...
+```
+
+The `css-loader` is responsible for processing the css, where the `style-loader` then grabs all of the styles and injects them into a `<style />` tag into the head of a document. So if we re-run our app: `$ npm run watch` everything should be looking nice and pink!
+
+Now css can get a little messy with naming conflicts, there are practices like BEM out there which can help, although another way to work around this issue is to use css-modules, which is a way that you locally allocate styles to individual components of your application. The way this works is that you inject the styles into the component as a `className`, then the `css-loader` can roll through and rename the css to a unique string. So let's change up our `/app/index.js` now:
+
+```
+# /app/index.js
+...
+const App = () => (
+    <div className={styles.container}>
+...
+```
