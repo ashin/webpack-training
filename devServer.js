@@ -2,7 +2,6 @@ const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 
 const config = require('./webpack.config');
-const opn = require('opn');
 const port = 3000;
 
 new WebpackDevServer(webpack(config), {
@@ -13,7 +12,5 @@ new WebpackDevServer(webpack(config), {
 }).listen(port, 'localhost', error => {
     if (error) {
         console.log(error);
-    } else {
-        opn(`http://localhost:${port}`);
     }
 });

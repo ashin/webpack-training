@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const appPaths = [
   path.resolve(__dirname, 'app'),
@@ -19,10 +20,25 @@ const entry = isProduction
 
 const plugins = isProduction
     ? [
-        new webpack.optimize.UglifyJsPlugin()
+        new webpack.optimize.UglifyJsPlugin(),
+        new ExtractTextPlugin('style.css'),
     ]
     : [
         new webpack.HotModuleReplacementPlugin(),
+    ];
+
+const cssLoader = isProduction
+    ? ExtractTextPlugin.extract({
+        fallbackLoader: 'style-loader',
+        loaders: [
+            'css-loader?modules&minimize&localIdentName=[emoji]',
+            'postcss-loader',
+        ]
+    })
+    : [
+        'style-loader',
+        'css-loader?modules&localIdentName=[name]__[local]___[emoji]',
+        'postcss-loader',
     ];
 
 module.exports = {
@@ -46,11 +62,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loaders: [
-                    'style-loader',
-                    'css-loader?modules&localIdentName=[name]__[local]___[emoji]',
-                    'postcss-loader'
-                ],
+                loader: cssLoader,
                 include: appPaths,
             }
         ],
