@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const appPaths = [
   path.resolve(__dirname, 'app'),
@@ -22,30 +23,49 @@ const plugins = isProduction
     ? [
         new webpack.optimize.UglifyJsPlugin(),
         new ExtractTextPlugin('style.css'),
+        new HtmlWebpackPlugin({
+            template: 'ejs!app/index.ejs'
+        }),
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+            }
+    	})
     ]
     : [
         new webpack.HotModuleReplacementPlugin(),
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+            }
+    	})
     ];
 
 const cssLoader = isProduction
-    ? ExtractTextPlugin.extract({
-        fallbackLoader: 'style-loader',
+    ? {
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract(
+            'style-loader',
+            'css-loader?modules&localIdentName=[emoji]',
+            'postcss-loader'
+        ),
+        include: appPaths,
+    }
+    : {
+        test: /\.css$/,
         loaders: [
-            'css-loader?modules&minimize&localIdentName=[emoji]',
-            'postcss-loader',
-        ]
-    })
-    : [
-        'style-loader',
-        'css-loader?modules&localIdentName=[name]__[local]___[emoji]',
-        'postcss-loader',
-    ];
+            'style-loader',
+            'css-loader?modules&localIdentName=[name]__[local]___[emoji]',
+            'postcss-loader'
+        ],
+        include: appPaths,
+    };
 
 module.exports = {
     entry: entry,
     output: {
-        publicPath: '/dist/',
-        path: path.resolve(__dirname, './dist'),
+        publicPath: '/dist',
+        path: path.resolve(__dirname, 'dist'),
         filename: 'app.js',
     },
     module: {
@@ -60,11 +80,7 @@ module.exports = {
                 loader: 'url-loader?limit=10000&name=images/[hash:8].[ext]',
                 include: appPaths,
             },
-            {
-                test: /\.css$/,
-                loader: cssLoader,
-                include: appPaths,
-            }
+            cssLoader,
         ],
     },
     plugins: plugins,

@@ -3,17 +3,16 @@ import ReactDOM from 'react-dom';
 
 import dogImage from './dog.jpg';
 import styles from './styles.css';
-
 const App = () => (
     <div className={styles.container}>
         <p>Hello world!</p>
+        <p>Environment: { process.env.NODE_ENV }</p>
         <img src={dogImage} alt="It's a cute dog!" />
     </div>
 );
-const rootElement = document.getElementById('app');
 
-ReactDOM.render(<App />, rootElement);
+ReactDOM.render(<App />, document.getElementById('app'));
 
-if (module.hot) {
+if (process.env.NODE_ENV === 'development' && module.hot) {
 	module.hot.accept();
 }
