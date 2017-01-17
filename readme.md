@@ -358,4 +358,4 @@ Now let's change up our `css-loader` to generate all our `className`s.
 ...
 ```
 
-Now when we run the app, the `.container` class is rendered like this: `styles__container___🌋`. This is a good reason why webpack is powerful, while compiling everything to JS, we are able to do cool types of moulding of our assets.
+Now when we run the app, the `.container` class is rendered like this: `styles__container___🌋`. Mmmm.... nice.
