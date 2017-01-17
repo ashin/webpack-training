@@ -65,7 +65,7 @@ Now that we have these installed into our `node_modules` we know need to somehow
 
 `$ npm i --save-dev babel-loader`
 
-Now we have that, let's add it to our webpack config
+Now we have that, let's add it to our `webpack.config.js`
 
 ```
 # webpack.config.js
@@ -136,6 +136,7 @@ create a node server:
 
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
+const opn = require('opn');
 
 const config = require('./webpack.config');
 const port = 3000;
@@ -242,3 +243,119 @@ module.exports = {
 As you can see this can get very messy after a while with a lot of if/else or tuneries. Because of this some people lean towards using entirely seperate configs for server and client rendering. Or others have a base config, that they then import into both their client and server configs and edit that base with pure JS, or enlist a npm package called [webpack-merge](https://www.npmjs.com/package/webpack-merge) that does a deep merge of both objects, very simularly to `Object.assign()`
 
 You may have noticed that we snuck in another plugin to our config called `webpack.optimize.UglifyJsPlugin()`. This as the name suggests will uglify our code anytime we build with the `production` flag.
+
+
+## Step 6
+Now that we've got the basics covered, let's add in some more loaders, so that we can handle more of our assets like images, and css.
+
+Firstly, we'll get an image, and throw it into our `/app` folder. From there we can import it into our JS, so that webpack knows about it.
+
+```
+# /app/index.js
+...
+import dogImage from './dog.jpg';
+
+const App = () => (
+    <div>
+        <p>Hello world!</p>
+        <img src={dogImage} alt="It's a cute dog!" />
+    </div>
+);
+...
+```
+
+If we run `$ npm run watch` we will see that our app has an error, that if can't find `dog.jpg`, that's because webpack doesn't know how to process that file, so let's add in a loader for that now.
+
+First, let's install the appropriate loader, we will use `url-loader`. This moves all imported files into the output directory.
+
+`$ npm i --save-dev url-loader`
+
+Then let's setup our webpack config:
+
+```
+# webpack.config.js
+
+module.exports = {
+    ...
+    module: {
+        loaders: [
+            ...
+            {
+                test: /\.(gif|jpg|jpeg|png)$/,
+                loader: 'url-loader?limit=10000&name=images/[hash:8].[ext]',
+                include: appPaths,
+            },
+    ...
+```
+You can see we're now looking for any files finishing in `gif`, `jpg`, `jpeg`, or `png`. Also when we are loading in the `url-loader` we are also setting some options. The `limit` sets how large an image has to be before it's saved as a seperate file. So if it's under the Byte limit then it will just inline the image as a data-url, which is handy for small images as the browser won't take a round trip to the server for the file.
+
+## Step 7
+
+Now let's add in some css!
+
+```
+# /app/styles.css
+.container {
+    background: pink;
+    margin: 20px auto;
+    max-width: 400px;
+}
+```
+
+Next, import it into our `index.js` and add the `container` class into our app.
+
+```
+# /app/index.js
+...
+import styles from './styles.css';
+...
+const App = () => (
+    <div className={"container"}>
+...
+```
+
+If we run the app, we will be at the same issue with webpack not being able to process the css file, so let's install the loaders well need and set up the config file.
+`$ npm i --save-dev css-loader style-loader`
+
+Now our config:
+```
+# webpack.config.js
+...
+    module: {
+        loaders: [
+            ...
+            {
+                test: /\.css$/,
+                loaders: ['style-loader', 'css-loader'],
+                include: appPaths,
+            }
+        ]
+    },
+    ...
+```
+
+The `css-loader` is responsible for processing the css, where the `style-loader` then grabs all of the styles and injects them into a `<style />` tag into the head of a document. So if we re-run our app: `$ npm run watch` everything should be looking nice and pink!
+
+Now css can get a little messy with naming conflicts, there are practices like BEM out there which can help, although another way to work around this issue is to use css-modules, which is a way that you locally allocate styles to individual components of your application. The way this works is that you inject the styles into the component as a `className`, then the `css-loader` can roll through and rename the css to a unique string. So let's change up our `/app/index.js` now:
+
+```
+# /app/index.js
+...
+const App = () => (
+    <div className={styles.container}>
+...
+```
+
+Now let's change up our `css-loader` to generate all our `className`s.
+
+```
+# webpack.config.js
+...
+{
+    test: /\.css$/,
+    loaders: ['style-loader', 'css-loader?modules&localIdentName=[name]__[local]___[emoji]'],
+}
+...
+```
+
+Now when we run the app, the `.container` class is rendered like this: `styles__container___🌋`. This is a good reason why webpack is powerful, while compiling everything to JS, we are able to do cool types of moulding of our assets.
