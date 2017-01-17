@@ -4,28 +4,13 @@ const webpack = require('webpack');
 const appPaths = [
   path.resolve(__dirname, 'app'),
 ];
-const isProduction = process.env.NODE_ENV === 'production';
 
-const entry = isProduction
-    ? [
-        './app/index.js',
-    ]
-    : [
+module.exports = {
+    entry: [
         './app/index.js',
         'webpack-dev-server/client?http://localhost:3000',
         'webpack/hot/dev-server',
-    ];
-
-const plugins = isProduction
-    ? [
-        new webpack.optimize.UglifyJsPlugin()
-    ]
-    : [
-        new webpack.HotModuleReplacementPlugin(),
-    ];
-
-module.exports = {
-    entry: entry,
+    ],
     output: {
         publicPath: '/dist/',
         path: path.resolve(__dirname, './dist'),
@@ -40,5 +25,7 @@ module.exports = {
             },
         ],
     },
-    plugins: plugins
+    plugins: [
+        new webpack.HotModuleReplacementPlugin(),
+    ]
 };
