@@ -14,7 +14,7 @@ module.exports = {
         'webpack/hot/dev-server',
     ],
     output: {
-        publicPath: '/dist',
+        publicPath: '/',
         path: path.resolve(__dirname, 'dist'),
         filename: 'app.js',
     },
@@ -43,6 +43,9 @@ module.exports = {
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
+        new HtmlWebpackPlugin({
+            template: 'ejs!app/index.ejs'
+        }),
         new webpack.DefinePlugin({
             'process.env': {
                 NODE_ENV: JSON.stringify(process.env.NODE_ENV),

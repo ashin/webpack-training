@@ -484,15 +484,101 @@ Our CSS may get quite big, so maybe for production it might be a better approach
 Now we can go into our webpack config and set it up for our production build:
 
 ```
-# webpack.config.js
+# webpack.config.production.js
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 ...
-const plugins = isProduction
-    ? [
+module.exports = {
+    ...
+    module: {
+        loaders: [
+            {
+                test: /\.css$/,
+                loader: ExtractTextPlugin.extract(
+                    'style-loader',
+                    'css-loader?modules&localIdentName=[emoji]',
+                    'postcss-loader'
+                ),
+                include: appPaths,
+            },
+            ...
+        ]
+    ...
+    plugins: [
         new ExtractTextPlugin('style.css'),
         ...
-    ]
-    ...
 ```
+
+So we now have wrapped our css loaders in an `extract` method, that will grab all of the resulting css and move it into the file that we have specified when we set up the plugin `style.css`. So now is we are to build (`$ npm run build`) we should be able to see a new css file within our `dist` folder. Neat!
+
+Although, now we have a problem, currently our `index.html` doesn't have a style tag to pull in the new style. This is mainly in part to the fact that `index.html` isn't part of the webpack flow, so it doesn't know when we're adding in new output files. So let's change that.
+
+There is a fancy plugin called `html-webpack-plugin` that will pick up a index file and pass it into the root directory, while attaching all of our outputs. Not only does it accept in .html files, but it can also use other template files like `ejs` which will allows us to write js directly in our index file! All we need is the appropriate webpack loader extension, which in `ejs`'s case is `ejs-loader`.
+
+`$ npm i --save-dev ejs-loader html-webpack-plugin`
+
+Now let's set up our new shiny index file!
+
+```
+# /app/index.ejs
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+    	<title>CPP - <%= process.env.NODE_ENV %></title>
+        <title></title>
+    </head>
+    <body>
+        <div id="app"></div>
+    </body>
+
+</html>
+```
+
+Notice the `<%= %>` injection tags? Thats the way we can push in dynamic code directly into our index file during build time.
+
+Okay, let's setup our `html-webpack-plugin` to utilise this index file.
+Unfortunately this will be a time where we will have to make the same change in production and development webpack configs. Just think of it as twice the practice :P
+
+```
+# webpack.config.development.js && webpack.config.production.js
+
+...
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+...
+module.exports = {
+    ...
+    output: {
+        publicPath: '/',
+        ...
+    },
+    ...
+    plugins: [
+        ...
+        new HtmlWebpackPlugin({
+            template: 'ejs-loader!app/index.ejs'
+        }),
+...
+```
+
+We changed up the output.publicPath, as we are no longer using an index file from outside the `/dist` folder, so we changed it to `/`
+
+Although now our webpack dev server can't seem to find the `index.html` because we moved it into `/dist` so we need to change up it's base location to `/dist`. Let's do that now:
+
+```
+# /devServer.js
+
+...
+new WebpackDevServer(webpack(config), {
+    contentBase: '/dist',
+    filename: config.output.filename,
+    hot: true,
+    historyApiFallback: true
+}).listen(port, 'localhost', error => {
+...
+```    
+
+Now if we run both the `watch` and `build` scripts everything should be working smoothly.
