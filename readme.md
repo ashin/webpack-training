@@ -240,7 +240,7 @@ module.exports = {
     plugins: plugins,
     ...
 ```
-As you can see this can get very messy after a while with a lot of if/else or tuneries. Because of this some people lean towards using entirely seperate configs for server and client rendering. Or others have a base config, that they then import into both their client and server configs and edit that base with pure JS, or enlist a npm package called [webpack-merge](https://www.npmjs.com/package/webpack-merge) that does a deep merge of both objects, very simularly to `Object.assign()`
+As you can see this can get very messy after a while with a lot of if/else or tuneries. Because of this some people lean towards using entirely separate configs for server and client rendering. Or others have a base config, that they then import into both their client and server configs and edit that base with pure JS, or enlist a npm package called [webpack-merge](https://www.npmjs.com/package/webpack-merge) that does a deep merge of both objects, very simularly to `Object.assign()`
 
 You may have noticed that we snuck in another plugin to our config called `webpack.optimize.UglifyJsPlugin()`. This as the name suggests will uglify our code anytime we build with the `production` flag.
 
@@ -287,7 +287,7 @@ module.exports = {
             },
     ...
 ```
-You can see we're now looking for any files finishing in `gif`, `jpg`, `jpeg`, or `png`. Also when we are loading in the `url-loader` we are also setting some options. The `limit` sets how large an image has to be before it's saved as a seperate file. So if it's under the Byte limit then it will just inline the image as a data-url, which is handy for small images as the browser won't take a round trip to the server for the file.
+You can see we're now looking for any files finishing in `gif`, `jpg`, `jpeg`, or `png`. Also when we are loading in the `url-loader` we are also setting some options. The `limit` sets how large an image has to be before it's saved as a separate file. So if it's under the Byte limit then it will just inline the image as a data-url, which is handy for small images as the browser won't take a round trip to the server for the file.
 
 ## Step 7
 
@@ -360,11 +360,124 @@ Now let's change up our `css-loader` to generate all our `className`s.
 
 Now when we run the app, the `.container` class is rendered like this: `styles__container___🌋`. Mmmm.... nice.
 
-
-
 ## Step 8
 
-Our CSS may get quite big, so maybe for production it might be a better approach to instead of injecting it into a style tag in the `<head />` we could seperate it into it's own file and then inject back into the page. For that we have a tool called `extract-text-plugin`.
+Now our `webpack.config.js` file is getting pretty messy with all of the if/else statements trying to deal with the differences between production and development. From here there are a few approaches. One is to just leave a large file with lots conditional statements. The other would be to split this into two separate configs, and load either in when needed. The last approach would to be have a default config, that both of the configs have in common and then have two separate `development` and `production` config decorators that would add in their personalised information. The latter sounds like the best approach as it keeps our config dry without doubling up on common data, but in practice it adds a lot of complexity to the config files, which I would argue isn't helpful when you're starting out so let's take the second approach with the two copies of our config.
+
+First let's create the new development config file, which we can call `webpack.config.development.js`:
+
+```
+# webpack.config.development.js
+const path = require('path');
+const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
+
+const appPaths = [
+  path.resolve(__dirname, 'app'),
+];
+
+module.exports = {
+    entry: [
+        './app/index.js',
+        'webpack-dev-server/client?http://localhost:3000',
+        'webpack/hot/dev-server',
+    ],
+    output: {
+        publicPath: '/dist',
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'app.js',
+    },
+    module: {
+        loaders: [
+            {
+                test: /\.js$/,
+                loader: 'babel-loader',
+                include: appPaths,
+            },
+            {
+                test: /\.(gif|jpg|jpeg|png)$/,
+                loader: 'url-loader?limit=10000&name=images/[hash:8].[ext]',
+                include: appPaths,
+            },
+            {
+                test: /\.css$/,
+                loaders: [
+                    'style-loader',
+                    'css-loader?modules&localIdentName=[name]__[local]___[emoji]',
+                    'postcss-loader'
+                ],
+                include: appPaths,
+            },
+        ],
+    },
+    plugins: [
+        new webpack.HotModuleReplacementPlugin(),
+    ],
+    postcss: [
+        autoprefixer
+    ],
+};
+```
+
+That looks much nicer! Now let's make the production version of the config:
+
+```
+# webpack.config.production.js
+
+const path = require('path');
+const webpack = require('webpack');
+const autoprefixer = require('autoprefixer');
+
+const appPaths = [
+  path.resolve(__dirname, 'app'),
+];
+
+module.exports = {
+    entry: [
+        './app/index.js',
+    ],
+    output: {
+        publicPath: '/dist',
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'app.js',
+    },
+    module: {
+        loaders: [
+            {
+                test: /\.js$/,
+                loader: 'babel-loader',
+                include: appPaths,
+            },
+            {
+                test: /\.(gif|jpg|jpeg|png)$/,
+                loader: 'url-loader?limit=10000&name=images/[hash:8].[ext]',
+                include: appPaths,
+            },
+            {
+                test: /\.css$/,
+                loader: ExtractTextPlugin.extract(
+                    'style-loader',
+                    'css-loader?modules&localIdentName=[emoji]',
+                    'postcss-loader'
+                ),
+                include: appPaths,
+            },
+        ],
+    },
+    plugins: [
+        new webpack.optimize.UglifyJsPlugin(),
+    ],
+    postcss: [
+        autoprefixer
+    ],
+};
+
+```
+
+
+## Step 9
+
+Our CSS may get quite big, so maybe for production it might be a better approach to instead of injecting it into a style tag in the `<head />` we could separate it into it's own file and then inject back into the page. For that we have a tool called `extract-text-plugin`.
 
 `$ npm i --save-dev extract-text-plugin`
 
@@ -375,4 +488,11 @@ Now we can go into our webpack config and set it up for our production build:
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+...
+const plugins = isProduction
+    ? [
+        new ExtractTextPlugin('style.css'),
+        ...
+    ]
+    ...
 ```
