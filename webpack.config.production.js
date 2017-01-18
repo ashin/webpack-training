@@ -1,8 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const appPaths = [
   path.resolve(__dirname, 'app'),
@@ -31,26 +29,17 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: ExtractTextPlugin.extract(
+                loaders: [
                     'style-loader',
                     'css-loader?modules&localIdentName=[emoji]',
                     'postcss-loader'
-                ),
+                ],
                 include: appPaths,
             },
         ],
     },
     plugins: [
         new webpack.optimize.UglifyJsPlugin(),
-        new ExtractTextPlugin('style.css'),
-        new HtmlWebpackPlugin({
-            template: 'ejs!app/index.ejs'
-        }),
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-            }
-    	})
     ],
     postcss: [
         autoprefixer

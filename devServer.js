@@ -6,7 +6,6 @@ const port = 3000;
 
 new WebpackDevServer(webpack(config), {
     publicPath: '/',
-    contentBase: './dist',
     filename: config.output.filename,
     hot: true,
     historyApiFallback: true
