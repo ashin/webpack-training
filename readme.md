@@ -473,26 +473,3 @@ module.exports = {
 };
 
 ```
-
-
-## Step 9
-
-Our CSS may get quite big, so maybe for production it might be a better approach to instead of injecting it into a style tag in the `<head />` we could separate it into it's own file and then inject back into the page. For that we have a tool called `extract-text-plugin`.
-
-`$ npm i --save-dev extract-text-plugin`
-
-Now we can go into our webpack config and set it up for our production build:
-
-```
-# webpack.config.js
-
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-
-...
-const plugins = isProduction
-    ? [
-        new ExtractTextPlugin('style.css'),
-        ...
-    ]
-    ...
-```
